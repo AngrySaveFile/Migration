@@ -24,12 +24,13 @@ if ($matchedRow) {
     $jcuser = $matchedRow.jcuser
     Write-Output "Assigned username: $username"
     Write-Output "Assigned jcuser: $jcuser"
+    #allow user to run scripts
     Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
-
+    #Install the JumpCloud module and dependencies
     Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
     Install-Module -Name JumpCloud.ADMU -Confirm:$False -Force
     Import-Module JumpCloud.ADMU;
-
+    #start the migration process
     Start-Migration -SelectedUserName "$username" -JumpCloudUserName "$jcuser" -TempPassword 'Temp123!Temp123!' -LeaveDomain $true -ForceReboot $true
     Write-Output "Migration started for user: $username"
 } 
