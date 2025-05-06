@@ -19,7 +19,7 @@ $csvData = Import-Csv -Path $csvPath
 $matchedRow = $csvData | Where-Object { $_.ComputerName -eq $currentComputerName }
 
 # Assign the username column to a variable if a match is found
-if ($matchedRow) {
+if ($matchedRow) {    
     $username = $matchedRow.username
     $jcuser = $matchedRow.jcuser
     Write-Output "Assigned username: $username"
@@ -31,8 +31,8 @@ if ($matchedRow) {
     Import-Module JumpCloud.ADMU;
 
     Start-Migration -SelectedUserName "$username" -JumpCloudUserName "$jcuser" -TempPassword 'Temp123!Temp123!' -LeaveDomain $true -ForceReboot $true
-    Write-Output "Migration started for user: $username
+    Write-Output "Migration started for user: $username"
 } 
 else {
-    Write-Output "No match found for computer name '$currentComputerName'"
+    Write-Output "No match found for computer name $currentComputerName"
 }
