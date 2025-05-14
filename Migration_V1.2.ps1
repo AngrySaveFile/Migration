@@ -1,5 +1,5 @@
 #download csv file
-$url = "https://urldefense.com/v3/__https://github.com/AngrySaveFile/Migration/archive/refs/heads/main.zip__;!!D68HAeWseNw0ZHM!vJSLUesvUWjnfTal_Xt90S92gViwCbAPForgqEHfOtjGFTMMVkgfwwkflrmFS5qzmLT2TZ6rcFsSmd549qgEooVlWwEllvs$"
+$url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1VcPm2l-BveQr8xi62N-VLrSBBmU-pkL1okA1mAxqUS8wSMrxEV4al5dfr-m9s9j82sXOArH-a24I/pubhtml"
 $output = "computers.csv"
 $destination = "C:\Migration-main"
 
