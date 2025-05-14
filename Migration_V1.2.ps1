@@ -1,10 +1,10 @@
 #download csv file
 $url = "https://docs.google.com/spreadsheets/d/e/2PACX-1vT1VcPm2l-BveQr8xi62N-VLrSBBmU-pkL1okA1mAxqUS8wSMrxEV4al5dfr-m9s9j82sXOArH-a24I/pub?output=csv"
-$output = "C:\computers.csv"
+$output = "C:\Temp\computers.csv"
 Invoke-WebRequest -Uri $url -OutFile $output 
 
 #Define the path to the CSV file we downloaded 
-$csvPath = "C:\computers.csv"
+$csvPath = "C:\Temp\computers.csv"
 
 # Get the current computer name
 $currentComputerName = $env:COMPUTERNAME
