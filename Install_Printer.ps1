@@ -36,9 +36,7 @@ $driverInfPath = $driverInfPath.Replace(" ", "` ")
 $driverInfPath = $driverInfPath.Replace("(", "`(")
 $driverInfPath = $driverInfPath.Replace(")", "`)")
 $driverInfPath = $driverInfPath.Replace("&", "`&")
-$driverInfPath = $driverInfPath.Replace("'", "`'")
-$driverInfPath = $driverInfPath.Replace("`", "`")
-$driverInfPath = $driverInfPath.Replace("`", "`")               
+
 
 
 
