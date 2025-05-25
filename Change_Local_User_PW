@@ -1,0 +1,6 @@
+#Set the password varible to be a secure sting 
+$newPassword = ConvertTo-SecureString "IamUnknown4now@" -AsPlainText -Force
+#set username to be the local user name
+$userName = "Jared.Burnett"
+# This will set the password for the local user account
+Set-LocalUser -Name $userName -Password $newPassword
