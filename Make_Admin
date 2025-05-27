@@ -9,7 +9,9 @@ if ((Get-LocalGroupMember -Group $group | Where-Object {$_.Name -eq $currentUser
     Write-Host "Attempting to Remove $currentUser from the $group group. and then re-add them to the group."
     # Remove the user from the group
     Remove-LocalGroupMember -Group $group -Member $currentUser
-} 
+} else{
+    Write-Host "$currentUser is not in the admin group, attempting to add the user"
+}
 try {
     Add-LocalGroupMember -Group "Administrators" -Member $currentUser
     Write-Host "Admin privileges granted to $currentUser."

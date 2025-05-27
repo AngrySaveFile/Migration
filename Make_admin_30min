@@ -1,5 +1,5 @@
 # Get the current user
-$currentUser = $UserName = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty UserName
+$currentUser = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty UserName
 $group = "Administrators"
 # Show targeted user
 Write-Host "Targeted user: $currentUser"
