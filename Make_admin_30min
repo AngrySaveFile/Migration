@@ -1,0 +1,27 @@
+# Get the current user
+$currentUser = $UserName = Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object -ExpandProperty UserName
+$group = "Administrators"
+# Show targeted user
+Write-Host "Targeted user: $currentUser"
+# Add the current user to the local administrators group
+if ((Get-LocalGroupMember -Group $group | Where-Object {$_.Name -eq $currentUser})) {
+    Write-Host "$currentUser is already a member of the $group group."
+    Write-Host "Attempting to Remove $currentUser from the $group group. and then re-add them to the group."
+    # Remove the user from the group
+    Remove-LocalGroupMember -Group $group -Member $currentUser
+} 
+try {
+    Add-LocalGroupMember -Group "Administrators" -Member $currentUser
+    Write-Host "Admin privileges granted to $currentUser."
+
+    # Wait for 30 minutes (1800 seconds)
+    Start-Sleep -Seconds 1800
+
+    # Remove the current user from the local administrators group
+    Remove-LocalGroupMember -Group "Administrators" -Member $currentUser
+
+    Write-Host "Admin privileges have been revoked."
+    } catch {
+        Write-Host "Failed to add user to Administrators group: $($_.Exception.Message)"
+    }
+
