@@ -17,7 +17,7 @@ $matchedRow = $csvData | Where-Object { $_.ComputerName -eq $currentComputerName
 $username = $matchedRow.username
 $jcuser = $matchedRow.jcuser
 #set migrated variable to false
-$migrated = $false
+$global:migrated = $false
 
 function Migration {
     if ($matchedRow) {    
@@ -49,7 +49,7 @@ function Migration {
         #start the migration process
         Start-Migration -SelectedUserName "$username" -JumpCloudUserName "$jcuser" -TempPassword 'Temp123!Temp123!' -LeaveDomain $true -ForceReboot $false
         Write-Output "Migration completed for user: $username to user: $jcuser"
-        $migrated = $true
+        $global:migrated = $true
     } 
     else {
         Write-Output "No match found for computer name $currentComputerName"
