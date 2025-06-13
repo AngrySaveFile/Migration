@@ -89,10 +89,16 @@ function MakeAdmin {
 ActivateWindows
 Migration
 MakeAdmin
-if($migrated){# Reboot the computer to complete the migration
+if($global:migrated){# Reboot the computer to complete the migration
 Write-Output "Rebooting the computer to complete the migration..."
-msg * "Computer will restart in 10 seconds."
-Start-Sleep -Seconds 10; Restart-Computer -Force} else {
+msg * "Computer will restart in 20 seconds."
+Start-Sleep -Seconds 20; Restart-Computer -Force} else {
     Write-Output "Migration did not complete successfully. No reboot will occur."
 }
 # End of script
+#remove the csv file
+Remove-Item -Path $csvPath -Force
+#remove Migration_V1.3.ps1
+Remove-Item -Path $MyInvocation.MyCommand.Path -Force
+
+    
