@@ -16,20 +16,23 @@ $csvData = Import-Csv -Path $csvPath
 $matchedRow = $csvData | Where-Object { $_.ComputerName -eq $currentComputerName }
 $username = $matchedRow.username
 $jcuser = $matchedRow.jcuser
+#set migrated variable to false
+$migrated = $false
 
 function Migration {
     if ($matchedRow) {    
         $username = $matchedRow.username
+        $sessionuser = $username -split "am\\" #removes domain name from username
         $jcuser = $matchedRow.jcuser
         Write-Output "Assigned username: $username"
         Write-Output "Assigned jcuser: $jcuser"
     
         #logout user if they are logged in
         Write-Output "Checking for active user sessions..."
-        $sessions = quser | Select-String $username #gets the users session
+        $sessions = quser | Select-String $sessionuser #gets the users session
         $sessionId = ($sessions -split '\s+')[2] #extracts the session ID from the output
         if ($sessionId) {
-            Write-Output "Logging out user $username with session ID $sessionId"
+            Write-Output "Logging out user $sessionuser with session ID $sessionId"
             logoff $sessionId
             #wait for the user to be logged out
             Start-Sleep -Seconds 60
@@ -46,6 +49,7 @@ function Migration {
         #start the migration process
         Start-Migration -SelectedUserName "$username" -JumpCloudUserName "$jcuser" -TempPassword 'Temp123!Temp123!' -LeaveDomain $true -ForceReboot $false
         Write-Output "Migration completed for user: $username to user: $jcuser"
+        $migrated = $true
     } 
     else {
         Write-Output "No match found for computer name $currentComputerName"
@@ -85,7 +89,10 @@ function MakeAdmin {
 ActivateWindows
 Migration
 MakeAdmin
-# Reboot the computer to complete the migration
+if($migrated){# Reboot the computer to complete the migration
 Write-Output "Rebooting the computer to complete the migration..."
 msg * "Computer will restart in 10 seconds."
-Start-Sleep -Seconds 10; Restart-Computer -Force
+Start-Sleep -Seconds 10; Restart-Computer -Force} else {
+    Write-Output "Migration did not complete successfully. No reboot will occur."
+}
+# End of script
