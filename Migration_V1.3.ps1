@@ -22,7 +22,7 @@ $global:migrated = $false
 function Migration {
     if ($matchedRow) {    
         $username = $matchedRow.username
-        $sessionuser = $username -split "am\\" #removes domain name from username
+        $sessionuser = ($username -split "am\\")[-1] #removes domain name from username and ensures it's a string
         $jcuser = $matchedRow.jcuser
         Write-Output "Assigned username: $username"
         Write-Output "Assigned jcuser: $jcuser"
@@ -44,7 +44,9 @@ function Migration {
         Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
         #Install the JumpCloud module and dependencies
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
-        Install-Module -Name JumpCloud.ADMU -Confirm:$False -Force
+        if (-not (Get-Module -ListAvailable -Name JumpCloud.ADMU)) {
+            Install-Module -Name JumpCloud.ADMU -Confirm:$False -Force
+        }
         Import-Module JumpCloud.ADMU;
         #start the migration process
         Start-Migration -SelectedUserName "$username" -JumpCloudUserName "$jcuser" -TempPassword 'Temp123!Temp123!' -LeaveDomain $true -ForceReboot $false
@@ -57,7 +59,7 @@ function Migration {
 }
 
 function ActivateWindows {
-
+    $OEMKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
     # Get the OEM product key from the BIOS
     $OEMKey = (Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey
     
@@ -86,19 +88,22 @@ function MakeAdmin {
         Write-Host "Failed to add user $jcuser to the Administrators group. Error: $_"
     }
 }
+
+function Reboot-ComputerToCompleteMigration {
+    if($global:migrated){# Reboot the computer to complete the migration
+    Write-Output "Rebooting the computer to complete the migration..."
+    # Wait for 30 seconds before rebooting
+    Start-Sleep -Seconds 30; Restart-Computer -Force
+    exit 0
+} else {
+        Write-Output "Migration did not complete successfully. No reboot will occur." exit
+    }
+}
 ActivateWindows
 Migration
 MakeAdmin
-if($global:migrated){# Reboot the computer to complete the migration
-Write-Output "Rebooting the computer to complete the migration..."
-msg * "Computer will restart in 20 seconds."
-Start-Sleep -Seconds 20; Restart-Computer -Force} else {
-    Write-Output "Migration did not complete successfully. No reboot will occur."
-}
+Reboot-ComputerToCompleteMigration
+Write-Output "Migration script completed. Please check the output for any errors or messages."
 # End of script
-#remove the csv file
-Remove-Item -Path $csvPath -Force
-#remove Migration_V1.3.ps1
-Remove-Item -Path $MyInvocation.MyCommand.Path -Force
 
     
