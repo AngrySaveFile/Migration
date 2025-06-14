@@ -35,9 +35,11 @@ function Migration {
             Write-Output "Logging out user $sessionuser with session ID $sessionId"
             logoff $sessionId
             #wait for the user to be logged out
-            Start-Sleep -Seconds 60
+            Start-Sleep -Seconds 40
+            msg * "user $sessionuser has been logged out to complete the migration process. Please do not log in again until after the computer reboots."
+
         } else {
-            Write-Output "No active session found for user $username continuing with the migration." 
+            Write-Output "No active session found for user $sessionuser continuing with the migration." 
         }
      
         #allow user to run scripts
@@ -92,11 +94,11 @@ function MakeAdmin {
 function Reboot-ComputerToCompleteMigration {
     if($global:migrated){# Reboot the computer to complete the migration
     Write-Output "Rebooting the computer to complete the migration..."
+    msg * "The computer will reboot in 30 seconds to complete the migration process."
     # Wait for 30 seconds before rebooting
     Start-Sleep -Seconds 30; Restart-Computer -Force
-    exit 0
 } else {
-        Write-Output "Migration did not complete successfully. No reboot will occur." exit
+        Write-Output "Migration did not complete successfully. No reboot will occur."
     }
 }
 ActivateWindows
