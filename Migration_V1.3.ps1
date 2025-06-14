@@ -22,7 +22,8 @@ $global:migrated = $false
 function Migration {
     if ($matchedRow) {    
         $username = $matchedRow.username
-        $sessionuser = ($username -split "am\\")[-1] #removes domain name from username and ensures it's a string
+        # Remove the "am\" domain prefix from the username if present; if not present, the entire username is used.
+        $sessionuser = ($username -split "am\\")[-1]
         $jcuser = $matchedRow.jcuser
         Write-Output "Assigned username: $username"
         Write-Output "Assigned jcuser: $jcuser"
@@ -33,23 +34,24 @@ function Migration {
         $sessionId = ($sessions -split '\s+')[2] #extracts the session ID from the output
         if ($sessionId) {
             Write-Output "Logging out user $sessionuser with session ID $sessionId"
+            msg * "User $sessionuser will be logged out to complete the migration process. Please do not log in again until after the computer reboots."
+            start-sleep -Seconds 20
             logoff $sessionId
             #wait for the user to be logged out
             Start-Sleep -Seconds 40
-            msg * "user $sessionuser has been logged out to complete the migration process. Please do not log in again until after the computer reboots."
 
         } else {
             Write-Output "No active session found for user $sessionuser continuing with the migration." 
         }
-     
         #allow user to run scripts
         Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
         #Install the JumpCloud module and dependencies
         Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force
+        # Check if the JumpCloud module is installed, if not, install it
         if (-not (Get-Module -ListAvailable -Name JumpCloud.ADMU)) {
             Install-Module -Name JumpCloud.ADMU -Confirm:$False -Force
         }
-        Import-Module JumpCloud.ADMU;
+        Import-Module JumpCloud.ADMU
         #start the migration process
         Start-Migration -SelectedUserName "$username" -JumpCloudUserName "$jcuser" -TempPassword 'Temp123!Temp123!' -LeaveDomain $true -ForceReboot $false
         Write-Output "Migration completed for user: $username to user: $jcuser"
@@ -61,10 +63,8 @@ function Migration {
 }
 
 function ActivateWindows {
-    $OEMKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey
     # Get the OEM product key from the BIOS
-    $OEMKey = (Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey
-    
+    $OEMKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey    
     # Check if a key was found
     if ($OEMKey) {
         Write-Host "OEM key found: $OEMKey"
@@ -83,11 +83,15 @@ function ActivateWindows {
 function MakeAdmin {
     
     # Add the migrated user to the local Administrators group
-    try {
-        Add-LocalGroupMember -Group "Administrators" -Member $jcuser -ErrorAction Stop
-        Write-Host "User $jcuser has been added to the Administrators group."
-    } catch {
-        Write-Host "Failed to add user $jcuser to the Administrators group. Error: $_"
+    if (![string]::IsNullOrWhiteSpace($jcuser)) {
+        try {
+            Add-LocalGroupMember -Group "Administrators" -Member $jcuser -ErrorAction Stop
+            Write-Host "User $jcuser has been added to the Administrators group."
+        } catch {
+            Write-Host "Failed to add user $jcuser to the Administrators group. Error: $_"
+        }
+    } else {
+        Write-Host "No valid JumpCloud user found to add to the Administrators group."
     }
 }
 
@@ -96,16 +100,16 @@ function Reboot-ComputerToCompleteMigration {
     Write-Output "Rebooting the computer to complete the migration..."
     msg * "The computer will reboot in 30 seconds to complete the migration process."
     # Wait for 30 seconds before rebooting
+    Write-Output "Migration script completed. Please check the output for any errors or messages."
     Start-Sleep -Seconds 30; Restart-Computer -Force
 } else {
         Write-Output "Migration did not complete successfully. No reboot will occur."
     }
 }
-ActivateWindows
 Migration
+ActivateWindows
 MakeAdmin
 Reboot-ComputerToCompleteMigration
-Write-Output "Migration script completed. Please check the output for any errors or messages."
 # End of script
 
     
