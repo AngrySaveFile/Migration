@@ -37,12 +37,11 @@ function Migration {
             msg * "User $sessionuser will be logged out to complete the migration process. Please do not log in again until after the computer reboots."
             start-sleep -Seconds 20
             logoff $sessionId
-            #wait for the user to be logged out
-            Start-Sleep -Seconds 40
 
         } else {
             Write-Output "No active session found for user $sessionuser continuing with the migration." 
         }
+        Start-Sleep -Seconds 40
         #allow user to run scripts
         Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope CurrentUser
         #Install the JumpCloud module and dependencies
@@ -72,11 +71,11 @@ function ActivateWindows {
         # Attempt to activate Windows using the retrieved key
             slmgr /ipk $OEMKey
             slmgr /ato
-            Write-Host "Windows activation process completed."
+            Write-Output "Windows activation process completed."
             
     } else {
-        Write-Host "No OEM key found in the BIOS."
-    
+        # If no key was found, output a message
+        Write-Output "Windows activation failed. No OEM key found."
     }
 }
 
@@ -101,11 +100,14 @@ function Reboot-ComputerToCompleteMigration {
     msg * "The computer will reboot in 30 seconds to complete the migration process."
     # Wait for 30 seconds before rebooting
     Write-Output "Migration script completed. Please check the output for any errors or messages."
+    # Wait for 30 seconds before rebooting
     Start-Sleep -Seconds 30; Restart-Computer -Force
-} else {
-        Write-Output "Migration did not complete successfully. No reboot will occur."
+    Write-Output "Reboot started"
+    } else {
+        Write-Output "Migration was not successful, skipping reboot."
     }
 }
+# Main script execution
 Migration
 ActivateWindows
 MakeAdmin
