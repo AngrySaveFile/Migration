@@ -55,6 +55,7 @@ function Migration {
         Start-Migration -SelectedUserName "$username" -JumpCloudUserName "$jcuser" -TempPassword 'Temp123!Temp123!' -LeaveDomain $true -ForceReboot $false
         Write-Output "Migration completed for user: $username to user: $jcuser"
         $global:migrated = $true
+        RestartIfSuccess
     } 
     else {
         Write-Output "No match found for computer name $currentComputerName"
@@ -94,7 +95,7 @@ function MakeAdmin {
     }
 }
 
-function Reboot-ComputerToCompleteMigration {
+function RestartIfSuccess {
     if($global:migrated){# Reboot the computer to complete the migration
     Write-Output "Rebooting the computer to complete the migration..."
     msg * "The computer will reboot in 30 seconds to complete the migration process."
@@ -111,7 +112,6 @@ function Reboot-ComputerToCompleteMigration {
 Migration
 ActivateWindows
 MakeAdmin
-Reboot-ComputerToCompleteMigration
 # End of script
 
     

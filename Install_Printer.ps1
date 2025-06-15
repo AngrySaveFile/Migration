@@ -27,7 +27,6 @@ if (Test-Path -Path $folderPath -PathType Container) {
 # Remove the downloaded files
 Remove-Item -Path $output -Force
 # Remove the driver from the driver store
-$driverName = "RICOH MP C3003 PCL 6"
 $driverPath = "C:\Windows\Temp\z04169L16\disk1"
 $driverInf = "MPC3003_.inf"
 $driverInfPath = Join-Path -Path $driverPath -ChildPath $driverInf
