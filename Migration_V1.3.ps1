@@ -101,7 +101,7 @@ function RestartIfSuccess {
         # Wait for 30 seconds before rebooting
         Write-Output "Migration script completed. Please check the output for any errors or messages."
         # Wait for 30 seconds before rebooting
-        Start-Sleep -Seconds 30; exit 0; Restart-Computer
+        Start-Sleep -Seconds 30; exit 0; Restart-Computer -Force
         Write-Output "Reboot started"
     } else {
         Write-Output "Migration was not successful, skipping reboot."
