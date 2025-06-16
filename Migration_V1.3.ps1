@@ -85,24 +85,24 @@ function MakeAdmin {
     if (![string]::IsNullOrWhiteSpace($jcuser)) {
         try {
             Add-LocalGroupMember -Group "Administrators" -Member $jcuser -ErrorAction Stop
-            Write-Host "User $jcuser has been added to the Administrators group."
+            Write-Output "User $jcuser has been added to the Administrators group."
         } catch {
-            Write-Host "Failed to add user $jcuser to the Administrators group. Error: $_"
+            Write-Output "Failed to add user $jcuser to the Administrators group. Error: $_"
         }
     } else {
-        Write-Host "No valid JumpCloud user found to add to the Administrators group."
+        Write-Output "No valid JumpCloud user found to add to the Administrators group."
     }
 }
 
 function RestartIfSuccess {
     if($global:migrated){# Reboot the computer to complete the migration
-    Write-Output "Rebooting the computer to complete the migration..."
-    msg * "The computer will reboot in 30 seconds to complete the migration process."
-    # Wait for 30 seconds before rebooting
-    Write-Output "Migration script completed. Please check the output for any errors or messages."
-    # Wait for 30 seconds before rebooting
-    Start-Sleep -Seconds 30; Restart-Computer -Force
-    Write-Output "Reboot started"
+        Write-Output "Rebooting the computer to complete the migration..."
+        msg * "The computer will reboot in 30 seconds to complete the migration process."
+        # Wait for 30 seconds before rebooting
+        Write-Output "Migration script completed. Please check the output for any errors or messages."
+        # Wait for 30 seconds before rebooting
+        Start-Sleep -Seconds 30; exit 0; Restart-Computer
+        Write-Output "Reboot started"
     } else {
         Write-Output "Migration was not successful, skipping reboot."
     }
