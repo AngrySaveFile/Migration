@@ -57,11 +57,20 @@ function Migration {
         $global:migrated = $true
     } 
     else {
-        Write-Output "No match found for computer name $currentComputerName"
+        Write-Output "No match found for computer name $currentComputerName" 
+        throw "stopping migration"
     }
-}
-
-function ActivateWindows {
+     # Add the migrated user to the local Administrators group
+    if (![string]::IsNullOrWhiteSpace($jcuser)) {
+        try {
+            Add-LocalGroupMember -Group "Administrators" -Member $jcuser -ErrorAction Stop
+            Write-Output "User $jcuser has been added to the Administrators group."
+        } catch {
+            Write-Output "Failed to add user $jcuser to the Administrators group. Error: $_"
+        }
+    } else {
+        Write-Output "No valid JumpCloud user found to add to the Administrators group."
+    }
     # Get the OEM product key from the BIOS
     $OEMKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey    
     # Check if a key was found
@@ -77,41 +86,21 @@ function ActivateWindows {
         # If no key was found, output a message
         Write-Output "Windows activation failed. No OEM key found."
     }
-}
-
-function MakeAdmin {
-    
-    # Add the migrated user to the local Administrators group
-    if (![string]::IsNullOrWhiteSpace($jcuser)) {
-        try {
-            Add-LocalGroupMember -Group "Administrators" -Member $jcuser -ErrorAction Stop
-            Write-Output "User $jcuser has been added to the Administrators group."
-        } catch {
-            Write-Output "Failed to add user $jcuser to the Administrators group. Error: $_"
-        }
-    } else {
-        Write-Output "No valid JumpCloud user found to add to the Administrators group."
-    }
-}
-
-function RestartIfSuccess {
-    if($global:migrated){# Reboot the computer to complete the migration
+    if($global:migrated -eq $true){# Reboot the computer to complete the migration
         Write-Output "Rebooting the computer to complete the migration..."
         msg * "The computer will reboot in 30 seconds to complete the migration process."
         # Wait for 30 seconds before rebooting
         Write-Output "Migration script completed. Please check the output for any errors or messages."
         # Wait for 30 seconds before rebooting
-        Start-Sleep -Seconds 30; exit 0; Restart-Computer -Force
+        Start-Sleep -Seconds 30; Restart-Computer -Force
         Write-Output "Reboot started"
     } else {
         Write-Output "Migration was not successful, skipping reboot."
     }
 }
+
 # Main script execution
 Migration
-ActivateWindows
-MakeAdmin
-RestartIfSuccess
 # End of script
 
     
