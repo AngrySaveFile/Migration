@@ -58,10 +58,10 @@ function Migration {
     } 
     else {
         Write-Output "No match found for computer name $currentComputerName" 
-        throw "stopping migration"
+        throw "stopping migration" 
     }
      # Add the migrated user to the local Administrators group
-    if (![string]::IsNullOrWhiteSpace($jcuser)) {
+    if (![string]::IsNullOrWhiteSpace($jcuser) -and $global:migrated -eq $true) {
         try {
             Add-LocalGroupMember -Group "Administrators" -Member $jcuser -ErrorAction Stop
             Write-Output "User $jcuser has been added to the Administrators group."
