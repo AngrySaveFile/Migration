@@ -1,5 +1,5 @@
 # Replace <SecretAgentMan> with the actual password set in your Netskope configuration.
-$password = "SecretAgentMan"
+$password = "PuPasswordHere"
 
 # Get the product code for Netskope Client
 $productCode = (wmic product where "Name like 'Netskope Client'" get IdentifyingNumber /value | Select-String -Pattern "=").ToString().Split("=")[1]
@@ -18,7 +18,7 @@ if ($productCode) {
 } else {
     Write-Host "Did not find product code for Netskope Client"
 }
-Start-Sleep 120
+Start-Sleep 280
 # Check Netskope Client installation status after uninstall
 Write-Host "Checking Netskope Client installation status after uninstall..."
 if (Get-Package -Name "Netskope Client" -IncludeWindowsInstaller) {
