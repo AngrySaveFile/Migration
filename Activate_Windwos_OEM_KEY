@@ -1,18 +1,14 @@
 # Get the OEM product key from the BIOS
-$OEMKey = (Get-WmiObject -query 'select * from SoftwareLicensingService').OA3xOriginalProductKey
-
-# Check if a key was found
-if ($OEMKey) {
-    Write-Host "OEM key found: $OEMKey"
-
-    # Attempt to activate Windows using the retrieved key
-    try {
-        slmgr /ipk $OEMKey
-        slmgr /ato
-        Write-Host "Windows activation process completed."
-    } catch {
-        Write-Host "Error during activation: $($_.Exception.Message)"
-    }
-} else {
-    Write-Host "No OEM key found in the BIOS."
-}
+    $OEMKey = (Get-CimInstance -ClassName SoftwareLicensingService).OA3xOriginalProductKey    
+    # Check if a key was found
+    if ($OEMKey) {
+        Write-Host "OEM key found: $OEMKey"
+    
+        # Attempt to activate Windows using the retrieved key
+            slmgr /ipk $OEMKey
+            slmgr /ato
+            Write-Output "Windows activation process completed."
+            
+    } else {
+        # If no key was found, output a message
+        Write-Output "Windows activation failed. No OEM key found."
